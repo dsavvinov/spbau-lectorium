@@ -1,110 +1,3 @@
-\documentclass[fleqn, 12pt]{article}
-\usepackage[left=0.5in, right=0.5in, top=1in, bottom=0.5in]{geometry}
-\usepackage{mathexam}
-\usepackage{mathtext} 				% русские буквы в фомулах
-\usepackage[T2A]{fontenc}			% кодировка
-\usepackage[utf8]{inputenc}			% кодировка исходного текста
-\usepackage[english,russian]{babel}	% локализация и переносы
-\usepackage{enumerate}
-\usepackage{tabularx}
-%%% Дополнительная работа с математикой
-\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools,amsthm}
-%\usepackage{icomma} % "Умная" запятая: $0,2$ --- число, $0, 2$ --- перечисление
-\usepackage{graphicx}
-\usepackage{listings}
-\usepackage{float}
-\usepackage{enumitem}
-\usepackage{indentfirst}
-\usepackage{stmaryrd}	% двойные квадратные скобки
-\relpenalty=9999
-\binoppenalty=9999
-\newcommand{\bigslant}[2]{{\raisebox{.2em}{$#1$}\left/\raisebox{-.2em}{$#2$}\right.}}
-%чудоскобки
-\newcommand{\lr}[1]{\left({#1}\right)}
-\newcommand{\lrl}[1]{\left\{{#1}\right\}} 
-\newcommand{\lrh}[1]{\left[{#1}\right]}
-%мелкие полезности
-\newcommand{\eps}{\varepsilon} 
-\newcommand{\ar}{\ \ \Leftrightarrow \ \ }
-\newcommand{\arr}{\ \Rightarrow \ }
-\newcommand{\arl}{\ \Leftarrow \ }
-%многострочная формула с выравниванием по амперсантам
-\newcommand{\Split}[1]{%
-	\begin{equation}
-	\begin{split}
-	#1
-	\notag
-	\end{split}
-	\end{equation}
-}
-%системы уравнений
-\newcommand{\dand}[2]{\left\{\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
-\newcommand{\dor}[2]{\left[\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
-\newcommand{\ans}[1]{\left\{\begin{aligned}#1\end{aligned}\right.}
-\newcommand{\ors}[1]{\left[\begin{aligned}#1\end{aligned}\right.}	
-\newcommand{\bigo}{\mathcal{O}}
-\newcommand{\mb}[1]{\mathbb{#1}}
-%Оформление кода
-\let\ds\displaystyle
-\lstset{frame=tb,
-	language=C++,
-	aboveskip=3mm,
-	belowskip=3mm,
-	showstringspaces=false,
-	columns=flexible,
-	basicstyle={\small\ttfamily},
-	numbers=none,
-	breaklines=true,
-	breakatwhitespace=true,
-	tabsize=3
-}
-\newenvironment{myindentpar}[1]%
-{\begin{list}{}%
-		{\setlength{\leftmargin}{#1}}%
-		\item[]
-	}
-	{\end{list}}
-\newcommand{\image}[2] { \begin{figure}[h!] \centering	\includegraphics[scale=#2]{#1}  \end{figure} }
-
-\setlist[enumerate]{topsep=0pt,itemsep=-0ex,partopsep=0ex,parsep=0ex}
-\setlist[itemize]{topsep=0pt,itemsep=-0ex,partopsep=0ex,parsep=0ex}
-
-\begin{document}
-
-\underline{Литература}. \textit{Хопкрофт, Мотвани, Ульман.} <<Введение в теорию языков, автоматов и грамматик>>.
-
-Мы будем работать над \underline{конечным} алфавитом $ \Sigma $.
-
-\textit{Слово} -- \underline{конечная} последовательность элементов алфавита.
-
-\textit{Язык} -- множество слов (в том числе $ \epsilon $ -- пустое слово).
-
-Примеры:
-
-\begin{enumerate}
-	\item Русский язык -- бесконечный! (т.к. есть прапрапра...внуки).
-	
-	\item $ Java $.
-	
-\end{enumerate} 
-
-Проблема -- как проверить принадлежность слова языку? (т.е. как проверить, что набор каких-то символов является корректной программой на Java?). Для этого нужно проверить \textit{семантику} языка. Данный же курс будет практически полностью изучать другую сторону -- \textit{синтаксис} языка, закрывая глаза на семантику. 
-
-Заметим, что вопрос о принадлежности слова языку можно сформулировать как так называемый <<Yes/No question>>. Поэтому в таком контексте $ Язык = Задача $. Например, можно сказать, что есть задача с ответом да/нет -- простое ли число? Но можно и сказать, что есть некоторый язык простых чисел, и эти две вещи сколько-то равносильны друг другу.
-
-Давайте подсчитаем количество языков. Множество слов над $ \Sigma $ -- счетное. Множество языков над алфавитом $ \Sigma = 2^{\mathcal{N}}$ -- несчетное, но вот множество конечных языков над $ \Sigma $ -- счетно. 
-
-Таким образом, множество программ на $ Java $ (множество слов над конечных языком) -- счетно. А вот задач да/нет -- несчетно. Из этого следует много интересных следствий, в частности, что задач с ответом да/нет меньше, чем программ $ Java $ (более того, их ничтожно мало). Или что невозможно для любого действительного числа написать программу, которая бы бесконечно выводила его знаки с все более увеличивающейся точностью. А чисел, для которых такое возможно, также ничтожно мало (такие числа называются вычислимыми)
-
-\underline{Опр.} \textit{Вычислимым} называется язык, принадлежность слова которому можно проверить некоторой программой. 
-
-Мысль: будем изучать еще более узкий класс языков, нежели вычислимые потому, что с вычислимыми языками есть проблема. Вот пусть мы его придумали, и сказали, что якобы придумали программу, которая проверяет принадлежность этому языку. Но про такие программы очень тяжело что-то доказать! (проблемы останова, все такое)
-
-
-
-\bigskip
-\hrule
-\bigskip
 \section{Детерминированные конечные автоматы (ДКА)}
 
 Пусть $ \Sigma = \{0, 1\} $, $ L = \{слова\ четной\ длины \} $.
@@ -224,7 +117,7 @@
 
 Пусть есть некоторый ДКА
 
-\image{img1.png}{0.5}
+\image{./lec1/img1.png}{0.5}
 
 Пусть состояние $ q $ достижимо из начального: $ \delta (q_0, x) = q $ и $ y \in C_L^R(x) $, тогда $ \delta(q, y) \in T $. Иными словами, $ C_L^R(x) $ -- это такой язык, который принимался бы, если бы начальным автоматом было состояние $ q $. 
 
@@ -236,11 +129,11 @@
 
 \underline{Соображение}. Пусть есть два состояния: 
 
-\image{img2}{0.5}
+\image{./lec1/img2}{0.5}
 
 Если у этих двух состояний контексты одинаковы, тогда они тоже неразличимы. Действительно, пусть они различимы. Тогда есть одно и то же слово $ y $, приводящее из них в состояния разной терминальности, что противоречит равенству правых контекстов.
 
-\image{img3}{0.5}
+\image{./lec1/img3}{0.5}
 
 \bigskip
 
@@ -265,14 +158,14 @@ $ C_L^R(x) = C_L^R(y) \Leftrightarrow \hat{\delta}(q_0, x) = \hat{\delta}(q_0, y
 	
 	\item Терминальным состояниям соответствуют такие правые контексты, если $ \epsilon \in C_L^R(x) $
 	
-	\item Переходы. \image{img4.png}{0.5}
+	\item Переходы. \image{./lec1/img4.png}{0.5}
 \end{itemize}
 
 Почему мы построили то, что нужно? Рассмотрим некоторое $ x \in \Sigma^* $. Докажем, что $ x \in L \Leftrightarrow x $ принимается $ A $. 
 
 Утверждается, что когда $ A $ получил слово $ y $, то $ A $ находится в состоянии, соответствующему $ C_L^R(y) $. Доказательство по простенькой индукции.
 
-%\image{img5.png}{0.5}
+\image{./lec1/img5.png}{0.5}
 
 
 \subsection{Прямое произведение автоматов}
@@ -284,58 +177,3 @@ $ C_L^R(x) = C_L^R(y) \Leftrightarrow \hat{\delta}(q_0, x) = \hat{\delta}(q_0, y
 \subsection{Динамическое программирование по ДКА}
 
 Тут я чет залип. 
-
-
-\section{Недетерминированные конечные автоматы с $ \epsilon $--переходами}
-
-Пример $ L $ -- слова, в которых последние 10 символов начинаются с нуля.
-
-\image{image6.png}{0.5}
-
-Будем говорить, что $ NFA$-$\epsilon$ принимает слово $ x $, если существует хотя бы один путь, переводящий $ A $ в терминальное состояние.
-
-Следующий пример:
-
-$ L $ -- слова, в которых последние 10 символов начинаются с нуля, или слова четное длины.
-
-\image{img7.png}{0.5}
-
-То есть у нас есть некоторый оракул, который нам скажет, по какому из недетерминированных переходов перейти, чтобы победить. 
-
-\underline{Опр.} $ \epsilon $-НКА $ A = (\Sigma, Q, Q_0, T, \Delta) $ это пятерка:
-
-\begin{itemize}
-	\item $ \Sigma $ -- алфавит
-	
-	\item $ Q $ -- множество состояний
-	
-	\item $q_0$ -- начальное состояние
-	
-	\item $ T \subseteq F $ -- терминальные состояния
-	
-	\item $ \Delta \colon Q \times (\Sigma \cup \{ \epsilon \}) \to 2^\{Q\} $ -- функция переходов. Т.е. в отличии от ДФА, при переходе по символу из некоторого состояния, у нас есть целое множество вариантов (недетерминированность!)ы
-\end{itemize}
-
-\underline{Опр.} $ \epsilon $-замыканием $ E(q) $ состояния $ q \in Q $ называется множество состояний, достижимых из $ q $ только по $ \epsilon $-переходам.
-
-\underline{Опр.} $ \epsilon $-НКА принимает слово $ a_1 \ldots a_n $, если $ \exists $ последовательность состояний $ r_0 \ldots r_n $ такая, что $ r_0 = E(q_0) $, $ \forall i \in [1; n] \lr{r_i \in E(\Delta(r_{i - 1}, a_i))} $, $ r_n \in T $
-
-\subsection{Алгоритм детерминизации $ \epsilon $-НКА}
-
-Пусть есть $ \epsilon $-НКА $ A = (\Sigma, Q, q_0, T, \Delta) $. Построим ДКА 
-
-$$ B = \lr{\Sigma, 2^{Q}, E(q_0), \{ R \colon R \cap T \neq 0 \}, \delta(R, a) = \bigcup \limits_{r \in R} E\lr{\Delta\lr{r, a}}} $$
-
-\underline{Замечание.} Разумно включать в автомат $ B $ только состояния, достижимые из начального.
-
-\subsection{Академические регулярные выражения}
-
-$ \emptyset $ -- $ \emptyset $
-$ \epsilon $ -- $ \{ \epsilon \} $
-$ a $ -- $ \{ a \} $, $ \forall a \in \Sigma $
-$ (R) $ -- $ L(R) $
-$ R^* $ -- $ L(R)^* $, замыкание Клини, $ L^* = \{ w_1 \ldots w_n \colon n \geqslant, \forall w_i \in L \} $
-$ R_1 R_2 $ -- $ \{ ab \colon a \in L(R_1) \land b \in L(R_2) \} $
-$ R_1 \mid R_2 $ -- $ L(R_1) \cup L(R_2) $
-
-\end{document}
