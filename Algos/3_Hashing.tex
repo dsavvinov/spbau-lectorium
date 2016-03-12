@@ -1,0 +1,185 @@
+\documentclass[fleqn, 12pt]{article}
+\usepackage[left=0.5in, right=0.5in, top=1in, bottom=0.5in]{geometry}
+\usepackage{mathexam}
+\usepackage{mathtext} 				% русские буквы в фомулах
+\usepackage[T2A]{fontenc}			% кодировка
+\usepackage[utf8]{inputenc}			% кодировка исходного текста
+\usepackage[english,russian]{babel}	% локализация и переносы
+\usepackage{enumerate}
+\usepackage{tabularx}
+%%% Дополнительная работа с математикой
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools,amsthm}
+\usepackage{icomma} % "Умная" запятая: $0,2$ --- число, $0, 2$ --- перечисление
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\relpenalty=9999
+\binoppenalty=9999
+\newcommand{\bigslant}[2]{{\raisebox{.2em}{$#1$}\left/\raisebox{-.2em}{$#2$}\right.}}
+%чудоскобки
+\newcommand{\lr}[1]{\left({#1}\right)}
+\newcommand{\lrl}[1]{\left\{{#1}\right\}} 
+\newcommand{\lrh}[1]{\left[{#1}\right]}
+%мелкие полезности
+\newcommand{\eps}{\varepsilon} 
+\newcommand{\ar}{\ \ \Leftrightarrow \ \ }
+\newcommand{\arr}{\ \Rightarrow \ }
+\newcommand{\arl}{\ \Leftarrow \ }
+%многострочная формула с выравниванием по амперсантам
+\newcommand{\Split}[1]{%
+	\begin{equation}
+	\begin{split}
+	#1
+	\notag
+	\end{split}
+	\end{equation}
+}
+%системы уравнений
+\newcommand{\dand}[2]{\left\{\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
+\newcommand{\dor}[2]{\left[\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
+\newcommand{\ans}[1]{\left\{\begin{aligned}#1\end{aligned}\right.}
+\newcommand{\ors}[1]{\left[\begin{aligned}#1\end{aligned}\right.}	
+\newcommand{\bigo}{\mathcal{O}}
+\newcommand{\mb}[1]{\mathbb{#1}}
+%Оформление кода
+\let\ds\displaystyle
+\lstset{frame=tb,
+	language=C++,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	mathescape=true,
+	numbers=none,
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+\newenvironment{myindentpar}[1]%
+{\begin{list}{}%
+		{\setlength{\leftmargin}{#1}}%
+		\item[]
+	}
+	{\end{list}}
+\newcommand{\image}[2] { \begin{figure}[h!] \centering	\includegraphics[scale=#2]{#1}  \end{figure} }
+
+\begin{document}
+
+\section{Хэширование}
+
+\subsection{АТД <<множество>>}
+
+\begin{enumerate}
+	\item $ find(k) $
+	
+	\item $ insert(k) $
+	
+	\item $ erase(k) $
+	
+\end{enumerate}
+
+Реализации:
+
+\begin{enumerate}
+	\item <<Прямая адресация>>
+	
+	Заводим массив размера $ |K| $. Тратим $ \bigo(1) $ на любой запрос, но приходится потратить $ \bigo(|K|) $ памяти, что часто непозволительно много (для хранения интов придется выделить массив размера $ 2^32 $ байт).
+	
+	\item Дерево поиска
+	
+	$ \bigo(\log n) $ на любой запрос и $ \bigo(n) $ памяти. Однако необходимо, чтобы было отношение порядка на объектах, что не самое слабое ограничение.
+	
+	\item Hash-таблицы
+	
+	$ \bigo(1) $ на запрос в среднем, честная $ \bigo(n) $ памяти, не требует наличия отношения порядка (но требует наличия hash-функции от объектов, что более слабое ограничение). Единственный недостаток -- амортизированная единица в асимптотике на запрос, которая может легко выродиться во что-нибудь отстойно-линейное, если написать хеширование коряво.
+	
+\end{enumerate}
+
+
+
+\subsection{Хеш-таблица}
+
+Пусть есть функция $ h \colon K \to \{ 0, \ldots, m - 1 \} $. Заведем массив размера $ m $. Храним элемент $ k $ в ячейке $ h(k) $. При заполнении массива хорошо бы вырастить его в несколько раз и перехешировать все элементы.
+
+<рис. 1 с процессом хеширования и коллизиями>
+
+\underline{Проблема:} различные $ k_1, k_2 $ могут отхешироваться в одинаковое $ h(k_1) = h(k_2) $. Это называется коллизией, и их нужно уметь разрешать. Но чтобы понять, как это делать (и нужно ли вообще), нужно сначала проанализировать свойства хеш-функций.
+
+\subsubsection{Виды хеш-функций}
+
+\begin{enumerate}
+	\item $ K \subseteq \mb{Z} $
+	
+	$ h(k) \equiv k \mod m $
+	
+	или
+	
+	$ h(k) = [m \{ kA \}] mod m $, где $ A $ -- в принципе любое число (хотелось бы конечно вещественное, иначе неинтересно), но доказано, что хорошим является $ A = \frac{1 + \sqrt{5}}{2} $
+	
+	\item $ K \subseteq [0; 1] $
+	
+	$ h(k) =  \lfloor k \cdot c \rfloor $, где $ c $ -- некоторое число
+	
+	\item Строки
+	
+	Всенародно известный полиномиальный хеш. Пусть есть строка $ s = s_0 s_1 \ldots s_n $. Тогда определим $ h(s) = s_0 \cdot x^n + s_1 \cdot x^{n - 1} + \ldots + s_n x^0 \mod m $, где $ gcd(x, m) = 1 $. 
+	
+	В чем замечательность такого хеша? Ну, во-первых, мы умеем быстро (за $ \bigo(n) $ ) считать такой хеш по схеме Горнера:
+	
+	$ h(s_0 \ldots s_{i + 1}) = h (s_0 \ldots s_i) \cdot x + h(s_{i + 1}) $.
+	
+	Как естественное следствие, получаем алгоритм \textbf{Рабина-Карпа}:
+	
+	\begin{myindentpar}{0.5cm}
+		Можно найти подстроку $ P $ в строке $ T $ за время $ \bigo( |P| + |T| ) $ при условии наличия <<хорошего>> полиномиального хеширования. 
+		
+		По тексту $ T $ длины $ n $ построим массив $ H \colon H[i] = h(T[i] \ldots T[i + |P|]) $. Осталось пройтись по массиву и найти хеш, который соответствует хешу шаблона: $ H[i] = h(p) $. Но вот вопрос -- как строить такой массив эффективно?
+		
+		Давайте запишем $ H[i] = \lr{H[i - 1] - h(T[i - 1]) \cdot x^{|P|} }x + h[i + |P|] $. Вот и научились строить!
+	\end{myindentpar}
+	
+\end{enumerate}
+
+
+\subsubsection{Какая хеш-функция считается хорошей?}
+
+\begin{itemize}
+	\item Вероятность коллизий не более чем $ \frac{1}{m} $. Однако есть проблема: мы не знаем распределения на $ K $. 
+\end{itemize}
+
+Предположим, что $ h(k) $ равновероятно на $ \{ 0, \ldots, m - 1 \} $. Тогда нам не важно распределение ключей. 
+
+
+\subsubsection{Разрешение коллизий}
+
+\begin{enumerate}
+	\item Метод цепочек
+	
+	<рис. 2 с методом цепочек>.
+	
+	Храним в ячейках списки, ищем/вставляем очевидно.
+	
+	\underline{Утв:} Поиск отсутствующего элемента занимает $ \bigo(1 + \alpha) $, где $ \alpha = \frac{n}{m}  $ -- коэффициент заполнения (здесь и далее все утв. делаются в предположении верности гипотезы равномерного хеширования)
+	
+	$ E(\#\text{операций}) = 1 + E[\text{длина цепочки}] = 1 + \frac{n}{m} = \bigo(1 + \alpha) $
+	
+	\underline{Утв:} Успешний поиск элемента в таблице в среднем занимает $ \bigo(1 + \alpha) $. 
+	
+	Не можем применить гипотезу равномерного распределения к элементу, который мы ищем, т.к. он уже в таблице присутствует. 
+	
+	Замечание: поиск любого элемента требует столько же операций, сколько мы потратили на его добавление.
+	
+	$ \displaystyle E[\text{успешный поиск}] = \frac{1}{n} \cdot \sum \limits_{i = 1}^{n} E[\#\text{операций insert}] = \frac {1}{n} \cdot \sum \limits_{i = 1}{n} (1 + \frac{i - 1}{m}) = 1 + \frac{1}{nm} \cdot \sum \limits_{i = 1}^{n}(i - 1) = 1 + \frac{1}{nm} \cdot \frac{(n - 1) \cdot n)}{2} = 1 + \frac{n}{2m} - \frac{1}{2m} = \bigo(1 + \alpha)$
+		
+	\item Метод последовательных проб.
+	
+	Линейные пробы. 
+	
+	<рис. 1 с линейными пробами>
+	
+\end{enumerate}
+
+\end{document}

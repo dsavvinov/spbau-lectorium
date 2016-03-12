@@ -1,0 +1,215 @@
+\documentclass[fleqn, 12pt]{article}
+\usepackage[left=0.5in, right=0.5in, top=1in, bottom=0.5in]{geometry}
+\usepackage{mathexam}
+\usepackage{mathtext} 				% русские буквы в фомулах
+\usepackage[T2A]{fontenc}			% кодировка
+\usepackage[utf8]{inputenc}			% кодировка исходного текста
+\usepackage[english,russian]{babel}	% локализация и переносы
+\usepackage{enumerate}
+\usepackage{tabularx}
+%%% Дополнительная работа с математикой
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools,amsthm}
+\usepackage{icomma} % "Умная" запятая: $0,2$ --- число, $0, 2$ --- перечисление
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\relpenalty=9999
+\binoppenalty=9999
+\newcommand{\bigslant}[2]{{\raisebox{.2em}{$#1$}\left/\raisebox{-.2em}{$#2$}\right.}}
+%чудоскобки
+\newcommand{\lr}[1]{\left({#1}\right)}
+\newcommand{\lrl}[1]{\left\{{#1}\right\}} 
+\newcommand{\lrh}[1]{\left[{#1}\right]}
+%мелкие полезности
+\newcommand{\eps}{\varepsilon} 
+\newcommand{\ar}{\ \ \Leftrightarrow \ \ }
+\newcommand{\arr}{\ \Rightarrow \ }
+\newcommand{\arl}{\ \Leftarrow \ }
+%многострочная формула с выравниванием по амперсантам
+\newcommand{\Split}[1]{%
+	\begin{equation}
+	\begin{split}
+	#1
+	\notag
+	\end{split}
+	\end{equation}
+}
+%системы уравнений
+\newcommand{\dand}[2]{\left\{\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
+\newcommand{\dor}[2]{\left[\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
+\newcommand{\ans}[1]{\left\{\begin{aligned}#1\end{aligned}\right.}
+\newcommand{\ors}[1]{\left[\begin{aligned}#1\end{aligned}\right.}	
+\newcommand{\bigo}{\mathcal{O}}
+\newcommand{\mb}[1]{\mathbb{#1}}
+%Оформление кода
+\let\ds\displaystyle
+\lstset{frame=tb,
+	language=C++,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	mathescape=true,
+	numbers=none,
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+\newenvironment{myindentpar}[1]%
+{\begin{list}{}%
+		{\setlength{\leftmargin}{#1}}%
+		\item[]
+	}
+	{\end{list}}
+\newcommand{\image}[2] { \begin{figure}[h!] \centering	\includegraphics[scale=#2]{#1}  \end{figure} }
+
+\begin{document}
+	
+\section{RMQ}
+
+Вход: массив длины $ n $. Приходят запросы: $ (i, j) \to min $ на отрезке $ [i;j] $
+
+В лоб решается прямым проходом за $ \bigo(n) $. Попробуем улучшить это результат. 
+
+Рассмотрим сначала более сложную задачу:
+
+
+
+\subsection{Динамическое $ RMQ $}
+
+Пусть теперь еще некоторые элементы и могут изменяться в запросе $ Change(i, x) $.
+
+Для решения этой задачи будем использовать \textit{дерево отрезков} -- бинарное дерево, ассоциированное с массивом $ [1, n] $. С каждым узлом этого дерева будет ассоциирован некоторой подотрезок, в частности с корнем --- весь отрезок $ [1; n] $. Для любого внутреннего листа, с котором ассоциирован отрезок $ [i; j] $,  для его детей верно, что они ассоциированы с $ [i; m] $ и $ [m + 1; r] $, где $ m = \left \lfloor \frac{i + j}{2} \right \rfloor $. Листья -- это одноэлементные массивы.
+
+<рис. 1 с примером дерева и отрезочками>
+
+\underline{Утв.} Глубина дерева очевидно $ \bigo(\log n) $. 
+
+\underline{Идея.} Как теперь воспользоваться этой структурой, чтобы получить ответ на наш вопрос? Давайте в каждой вершине $ v $ сохраним $ min(\Delta(v)) $, где $ \Delta(v) $ -- отрезок, ассоциированный с $ v $. 
+
+\underline{Утв.} Можно построить за $ \bigo(n) $. Но это вобщем-то и не удивительно, т.к. мы строим в некотором смысле кучу, только более простую, т.к. у нас здесь элементы только в листьях, и сверху мы дописываем еще какую-то кучу.
+
+\underline{Утв.} Любой отрезок $ \Delta $ можно разбить на $ \bigo(\log n) $ канонических отрезков (отрезков из дерева). 
+
+\begin{lstlisting}
+$Decompose(v, \Delta)$:
+if $\Delta \neq \emptyset$
+	return $\emptyset$
+if $ \Delta = Delta(v) $:
+	return $ \Delta(v) $
+return Decompose (v.left, $ \Delta \cap \Delta(v.left) $) $\cup$ Decompose (v.right, $\Delta \cap \Delta (v.right)$)
+\end{lstlisting}
+
+1. Пусть у $ \Delta(v) $ и $ \Delta $ совпадает один из концов
+
+<рис. 2 с отрезочками>
+
+Подобно бинарному поиску правого конца будет $ \bigo(\log n) $ итераций, и вернется $ \bigo(\log n) $ отрезков
+
+2. Пусть у $ \Delta(v) $ и $ \Delta $ нет совпадающих концов.
+
+Тогда в дереве поиска надо найти первую вершину, где этот отрезок впервые разделится. При этом сделаем не больше логарифма операций, т.к. спускаемся по дереву, а его высота логарифмическая. А когда нашли такую точку разделения, можем применить дважды пункт 1, и получим все тот же $ \bigo(\log n) $ отрезков за $ \bigo(\log n) $ времени.
+
+\underline{Замечание.} Мы не просто нашли декомпозицию произвольного отрезка на $ \bigo(\log n) $ канонических отрезков, эти отрезки еще и не пересекающиеся. 
+
+\bigskip
+
+\textbf{Change (i, x)}?
+
+\underline{Замечание.} Любой элемент массива входит в $ \bigo(\log n) $ канонических отрезков (по одному отрезку на каждом уровне).
+
+Все такие отрезки лежат на пути из листа в корень, и поэтому мы можем реализовать $ Change(i, x) $ за $ \bigo(\log n) $
+
+\bigskip
+
+\textit{Можно ли быстрее?} Обе операции ускорить не получится, т.к. тогда бы мы умели быстро сортировать. Но можем ускорить одну из них ценой замедления другой. Например, можно сделать $ \bigo(1) $ на $ \min(l, r) $ и $ \bigo(n) $ на $ Change(i, x) $ (если просто хранить табличку размера $ n \times n $).
+
+\bigskip
+
+\underline{Замечание 1}: Можно реализовать на массиве
+
+\underline{Замечание 2}: Работает для любых ассоциативных операций, например, суммы.
+
+
+\subsection{Статическая постановка задачи RMQ}
+
+Поскольку массив не меняется, то можем позволить себе прекальки.
+
+\begin{enumerate}
+	\item Заведем таблицу $ n \times n $ и запишем туда ответы на все запросы. Но тогда получим $ \bigo(n^2) $ на предобработку и $ \bigo(1) $ на запрос.
+	
+	\item Для $ RSQ(Range-sum Query) $ можем сделать это все за $ (\bigo(n), \bigo(1)) $ с помощью частичных сумм: $ S[i] = \sum \limits_{j = 1}^i M[j] $. Тогда $ RSQ(i, j) = S[j] - S[i - 1] $. Но такая идея не подходит для $ RMQ $, т.к. у $ min $ нет обратного
+	
+	\item Для $ RMQ $ можно придумать алгоритм за $ (\bigo(n \log n), O(1)) $ через разреженные таблицы (Sparse Table). Давайте сохраним ответы для всех отрезков, длины которых есть степени двойки $ \Delta \colon |\Delta| = 2^k$. 
+	
+	Всего таких <<канонических>> отрезков $ \bigo(n \log n) $.
+	
+	Ясно, что такую таблицу умеем строить за $ \bigo(n \log n) $, поднимаясь снизу вверх.
+	
+	\underline{Утв.} Любой отрезок разбивается на не более чем два канонических.
+	
+	Это не сложно доказать: пусть длина отрезка есть степень двойки $ |\Delta| = 2^k $, тогда все здорово. Пусть теперь $ 2^{k - 1} < |\Delta| < 2^k \Rightarrow $ покрывается двумя отрезками длины $ 2^{k - 1} $
+	
+	<рис. 3 с отрезочками>
+	
+	Таким образом, научились отвечать на запрос за $ \bigo(1) $.
+	
+	\underline{Замечание.} Пользуемся идемпотентностью $ min $: $ \min(a, a) = a $
+	
+	\underline{Замечание.} Нам нужно узнавать по числу ближайшую степень двойки, и делать это желательно за $ \bigo(1) $.
+\end{enumerate}
+
+
+\section{LCA(least common ancestor)}
+
+Вход: дерево (корневое)
+
+Запрос: $ LCA(v, u) $ -- ближайший общий предок $ v, u $.
+
+<рис. 4 с деревом и предками>
+
+
+\subsection{Сведение LCA к RMQ}
+
+Введем понятие $ ET(T) $ -- Эйлеров обход дерева. Возьмем и удвоим все ребра, а потом обойдем полученный эйлеров граф, причем будем идти по возможности влево. 
+
+<рис. 5 с эйлеровым обходом>
+
+$ ET(v) = v, ET(u_1), v, ET(u_2), v, \ldots, ET(u_k), v $
+
+$ ET(l) = l $, где $ l $ -- лист.
+
+$ |ET(T)| = 2n - 1  $.
+
+Можно думать об Эйлеровом обходе как о протоколе обхода в глубину. 
+
+Немного переформулируем $ LCA(u,v) $. Ясно, что LCA лежит на пути $ v \to u $. Тогда можно записать, что $ LCA(u, v) $ -- это вершина с наименьшей глубиной на отрезке $ ET $ от первого вхождения $ v $ до первого вхождения $ u $
+
+<рис. 6, поясняющий мысль про переформулировку LCA>
+
+Построим массив $ first[u]  $ -- индекс первого вхождения $ u $ в $ ET(T) $. 
+
+Тогда $ LCA(v, u) = RMQ_{ET(T)} (first[v], first[u]) $, где $ RMQ_{ET(T)} $ -- минимальная глубина вершины на отрезке.
+
+\underline{Следствие:} $ (\bigo(n \log n), \bigo(1)) $
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
