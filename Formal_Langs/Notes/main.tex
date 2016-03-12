@@ -1,0 +1,85 @@
+\documentclass[a4paper,14pt]{article}
+
+\usepackage{extsizes}
+
+\usepackage[left=0.5in, right=0.5in, top=1in, bottom=1in]{geometry}
+%\usepackage{mathexam}
+\usepackage{mathtext} 				% русские буквы в фомулах
+\usepackage[T2A]{fontenc}			% кодировка
+\usepackage[utf8]{inputenc}			% кодировка исходного текста
+\usepackage[english,russian]{babel}	% локализация и переносы
+\usepackage{enumerate}
+\usepackage{tabularx}
+%%% Дополнительная работа с математикой
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools,amsthm}
+%\usepackage{icomma} % "Умная" запятая: $0,2$ --- число, $0, 2$ --- перечисление
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\usepackage{stmaryrd}	% двойные квадратные скобки
+\relpenalty=9999
+\binoppenalty=9999
+\newcommand{\bigslant}[2]{{\raisebox{.2em}{$#1$}\left/\raisebox{-.2em}{$#2$}\right.}}%чудоскобки
+\newcommand{\lr}[1]{\left({#1}\right)}
+\newcommand{\lrl}[1]{\left\{{#1}\right\}} 
+\newcommand{\lrh}[1]{\left[{#1}\right]}
+%мелкие полезности
+\newcommand{\eps}{\varepsilon} 
+\newcommand{\ar}{\ \ \Leftrightarrow \ \ }
+\newcommand{\arr}{\ \Rightarrow \ }
+\newcommand{\arl}{\ \Leftarrow \ }
+%многострочная формула с выравниванием по амперсантам
+\newcommand{\Split}[1]{%
+	\begin{equation}
+	\begin{split}
+	#1
+	\notag
+	\end{split}
+	\end{equation}
+}
+%системы уравнений
+\newcommand{\dand}[2]{\left\{\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
+\newcommand{\dor}[2]{\left[\begin{aligned}&#1\\&#2\\\end{aligned}\right.}
+\newcommand{\ans}[1]{\left\{\begin{aligned}#1\end{aligned}\right.}
+\newcommand{\ors}[1]{\left[\begin{aligned}#1\end{aligned}\right.}	
+\newcommand{\bigo}{\mathcal{O}}
+\newcommand{\mb}[1]{\mathbb{#1}}
+%Оформление кода
+\let\ds\displaystyle
+\lstset{frame=tb,
+	language=C++,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+\newenvironment{myindentpar}[1]%
+{\begin{list}{}%
+		{\setlength{\leftmargin}{#1}}%
+		\item[]
+	}
+	{\end{list}}
+\newcommand{\image}[2] { \begin{figure}[h!] \centering	\includegraphics[scale=#2]{#1}  \end{figure} }
+
+\setlist[enumerate]{topsep=0pt,itemsep=-0ex,partopsep=0ex,parsep=0ex}
+\setlist[itemize]{topsep=0pt,itemsep=-0ex,partopsep=0ex,parsep=0ex}
+
+\begin{document}
+	\input{title}
+
+	\setcounter{page}{0}
+	\input{common}
+	\newpage
+
+	\input{./lec1/lec1}
+	\newpage
+	
+	\input{./lec2/lec2}
+\end{document}
